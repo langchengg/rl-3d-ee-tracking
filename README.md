@@ -156,13 +156,13 @@ Results below are from `scripts/run_ablation.py` using the trained SAC residual 
 
 | Setting | Controller | RMSE ↓ | Mean Error ↓ | Max Error ↓ | Smoothness ↓ | Jerk ↓ |
 |---|---|---:|---:|---:|---:|---:|
-| Clean | IK | 0.0495 | 0.0470 | 0.0734 | 0.0022 | 0.0000 |
-| Clean | Residual SAC | 0.0494 | 0.0470 | 0.0719 | 0.0022 | 0.0000 |
-| Noise only | Residual SAC | 0.0494 | 0.0470 | 0.0718 | 0.0023 | 0.0003 |
-| Delay only | Residual SAC | 0.0494 | 0.0470 | 0.0719 | 0.0022 | 0.0000 |
-| Mild noise + delay | Residual SAC | 0.0494 | 0.0470 | 0.0718 | 0.0023 | 0.0003 |
+| Clean | IK | 0.0076 | 0.0073 | 0.0135 | 0.0007 | 0.0000 |
+| Clean | Residual SAC | 0.0098 | 0.0095 | 0.0135 | 0.0007 | 0.0000 |
+| Noise only | Residual SAC | 0.0098 | 0.0095 | 0.0135 | 0.0008 | 0.0003 |
+| Delay only | Residual SAC | 0.0098 | 0.0095 | 0.0135 | 0.0007 | 0.0000 |
+| Mild noise + delay | Residual SAC | 0.0098 | 0.0095 | 0.0135 | 0.0008 | 0.0003 |
 
-The low-pass filtered residual command keeps the SAC policy close to the IK controller on clean tracking while slightly reducing max error. Mild noise and one-step delay do not cause the large max-error spike seen when unreachable targets were mixed into the main result table.
+The tuned trajectory and lookahead controller keep the end-effector within about 1.35 cm of the moving target on the clean figure-eight. The retrained residual policy remains smooth and robust under the separated noise/delay ablations, while the IK baseline is still slightly stronger on clean RMSE in this simplified geometric tracking setup.
 
 Generated outputs:
 

@@ -14,6 +14,7 @@ def train(
     total_timesteps: int | None = None,
     checkpoint_path: str = "checkpoints/sac_residual_franka.zip",
     seed: int | None = None,
+    verbose: int = 0,
 ) -> str:
     cfg = load_config(config_path)
     if total_timesteps is not None:
@@ -37,7 +38,7 @@ def train(
         learning_starts=learning_starts,
         train_freq=1,
         gradient_steps=1,
-        verbose=1,
+        verbose=verbose,
         seed=cfg["env"].get("seed", 0),
         tensorboard_log=None,
     )
@@ -56,8 +57,9 @@ def main() -> None:
     parser.add_argument("--timesteps", type=int, default=None)
     parser.add_argument("--checkpoint", default="checkpoints/sac_residual_franka.zip")
     parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument("--verbose", type=int, default=0)
     args = parser.parse_args()
-    train(args.config, args.timesteps, args.checkpoint, args.seed)
+    train(args.config, args.timesteps, args.checkpoint, args.seed, args.verbose)
 
 
 if __name__ == "__main__":

@@ -9,11 +9,11 @@ env:
 
 trajectory:
   type: figure_eight
-  radius: 0.08
-  amplitude_x: 0.08
-  amplitude_y: 0.05
+  radius: 0.06
+  amplitude_x: 0.06
+  amplitude_y: 0.04
   center: [0.45, -0.02, 0.42]
-  frequency: 0.20
+  frequency: 0.12
   target_noise_std: 0.005
 
 rl:
@@ -29,10 +29,10 @@ rl:
 control:
   residual_scale: 0.06
   residual_filter_beta: 0.8
-  target_lookahead: 0.04
+  target_lookahead: 0.20
   ik_damping: 0.05
-  ik_gain: 8.0
-  max_joint_velocity: 1.2
+  ik_gain: 20.0
+  max_joint_velocity: 1.5
   home_qpos: [0.039701453, 0.11233248, -0.283563988, -2.28915042, 0.147905963, 2.49134334, 0.0]
 
 uncertainty:
