@@ -1,0 +1,49 @@
+env:
+  robot: franka_panda
+  model_path: assets/franka_panda/panda.xml
+  episode_length: 300
+  control_dt: 0.02
+  frame_skip: 5
+  seed: 7
+  gravity: [0.0, 0.0, 0.0]
+
+trajectory:
+  type: figure_eight
+  radius: 0.09
+  amplitude_x: 0.09
+  amplitude_y: 0.06
+  center: [0.45, -0.02, 0.42]
+  frequency: 0.25
+  target_noise_std: 0.01
+
+rl:
+  algorithm: SAC
+  total_timesteps: 1000000
+  learning_rate: 0.0003
+  buffer_size: 100000
+  batch_size: 128
+  gamma: 0.99
+  tau: 0.005
+  learning_starts: 500
+
+control:
+  residual_scale: 0.15
+  ik_damping: 0.05
+  ik_gain: 10.0
+  max_joint_velocity: 2.0
+  home_qpos: [0.039701453, 0.11233248, -0.283563988, -2.28915042, 0.147905963, 2.49134334, 0.0]
+
+uncertainty:
+  observation_noise_std: 0.002
+  action_noise_std: 0.01
+  action_delay_steps: 2
+  unreachable_target_prob: 0.02
+  unreachable_offset: [0.25, 0.0, 0.12]
+
+reward:
+  w_pos: 10.0
+  w_vel: 1.0
+  w_action: 0.01
+  w_smooth: 0.1
+  w_jerk: 0.05
+  w_joint_limit: 1.0

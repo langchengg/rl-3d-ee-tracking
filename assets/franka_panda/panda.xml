@@ -1,0 +1,84 @@
+<mujoco model="franka_panda_simplified">
+  <compiler angle="radian" coordinate="local" inertiafromgeom="true"/>
+  <option timestep="0.004" gravity="0 0 -9.81" integrator="implicitfast"/>
+
+  <visual>
+    <global azimuth="140" elevation="-20"/>
+    <headlight ambient="0.35 0.35 0.35" diffuse="0.7 0.7 0.7" specular="0.2 0.2 0.2"/>
+  </visual>
+
+  <asset>
+    <texture name="grid" type="2d" builtin="checker" rgb1="0.92 0.92 0.92" rgb2="0.78 0.82 0.85" width="300" height="300"/>
+    <material name="floor_mat" texture="grid" texrepeat="2 2" reflectance="0.15"/>
+    <material name="white" rgba="0.86 0.88 0.90 1"/>
+    <material name="black" rgba="0.06 0.07 0.08 1"/>
+    <material name="blue" rgba="0.1 0.26 0.72 1"/>
+    <material name="ee_red" rgba="0.9 0.12 0.08 1"/>
+  </asset>
+
+  <default>
+    <joint armature="0.02" damping="2.0" limited="true"/>
+    <geom contype="1" conaffinity="1" density="650" friction="0.8 0.1 0.1"/>
+    <position ctrllimited="true" kp="180" kv="25" forcerange="-90 90"/>
+  </default>
+
+  <worldbody>
+    <light name="key" pos="0 -3 4" dir="0 0 -1" directional="true"/>
+    <geom name="floor" type="plane" size="1.8 1.8 0.05" material="floor_mat"/>
+
+    <body name="panda_base" pos="0 0 0.04">
+      <geom name="base" type="cylinder" size="0.12 0.04" material="black"/>
+
+      <body name="panda_link1" pos="0 0 0.06">
+        <joint name="panda_joint1" type="hinge" axis="0 0 1" range="-2.8973 2.8973"/>
+        <geom type="capsule" fromto="0 0 0 0 0 0.20" size="0.045" material="white"/>
+
+        <body name="panda_link2" pos="0 0 0.20">
+          <joint name="panda_joint2" type="hinge" axis="0 1 0" range="-1.7628 1.7628"/>
+          <geom type="capsule" fromto="0 0 0 0.20 0 0" size="0.04" material="white"/>
+
+          <body name="panda_link3" pos="0.20 0 0">
+            <joint name="panda_joint3" type="hinge" axis="0 0 1" range="-2.8973 2.8973"/>
+            <geom type="capsule" fromto="0 0 0 0.18 0 0" size="0.037" material="white"/>
+
+            <body name="panda_link4" pos="0.18 0 0">
+              <joint name="panda_joint4" type="hinge" axis="0 1 0" range="-3.0718 -0.0698"/>
+              <geom type="capsule" fromto="0 0 0 0.16 0 0" size="0.034" material="white"/>
+
+              <body name="panda_link5" pos="0.16 0 0">
+                <joint name="panda_joint5" type="hinge" axis="1 0 0" range="-2.8973 2.8973"/>
+                <geom type="capsule" fromto="0 0 0 0.13 0 0" size="0.03" material="blue"/>
+
+                <body name="panda_link6" pos="0.13 0 0">
+                  <joint name="panda_joint6" type="hinge" axis="0 1 0" range="-0.0175 3.7525"/>
+                  <geom type="capsule" fromto="0 0 0 0.10 0 0" size="0.027" material="white"/>
+
+                  <body name="panda_link7" pos="0.10 0 0">
+                    <joint name="panda_joint7" type="hinge" axis="1 0 0" range="-2.8973 2.8973"/>
+                    <geom type="capsule" fromto="0 0 0 0.09 0 0" size="0.024" material="black"/>
+                    <body name="panda_hand" pos="0.09 0 0">
+                      <geom type="sphere" size="0.035" material="black"/>
+                      <geom type="sphere" pos="0.03 0 0" size="0.018" material="ee_red"/>
+                      <site name="ee_site" pos="0.05 0 0" size="0.018" rgba="0.9 0.1 0.1 1"/>
+                      <camera name="track" pos="0.95 -1.25 0.85" xyaxes="0.80 0.60 0.00 -0.30 0.40 0.86"/>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <position name="act1" joint="panda_joint1" ctrlrange="-2.8973 2.8973"/>
+    <position name="act2" joint="panda_joint2" ctrlrange="-1.7628 1.7628"/>
+    <position name="act3" joint="panda_joint3" ctrlrange="-2.8973 2.8973"/>
+    <position name="act4" joint="panda_joint4" ctrlrange="-3.0718 -0.0698"/>
+    <position name="act5" joint="panda_joint5" ctrlrange="-2.8973 2.8973"/>
+    <position name="act6" joint="panda_joint6" ctrlrange="-0.0175 3.7525"/>
+    <position name="act7" joint="panda_joint7" ctrlrange="-2.8973 2.8973"/>
+  </actuator>
+</mujoco>

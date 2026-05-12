@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.cache/
+.DS_Store
+.venv/
+checkpoints/*.zip
+!checkpoints/sac_residual_franka.zip
+results/logs/
