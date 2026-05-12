@@ -172,6 +172,13 @@ Generated outputs:
 - `results/plots/action_smoothness.png`
 - `results/videos/franka_tracking.mp4`
 
+### Visual Results
+
+[![3D trajectory (click to play video)](results/plots/3d_trajectory.png)](results/videos/franka_tracking.mp4)
+![XYZ tracking](results/plots/xyz_tracking.png)
+![Tracking error](results/plots/tracking_error.png)
+![Action smoothness](results/plots/action_smoothness.png)
+
 ## Design Notes
 
 Residual RL is used because pure joint-space RL is slow and can produce unsafe exploratory motion. The IK controller handles the obvious geometry, while SAC learns bounded corrections for tracking dynamics, delay, noise, and model mismatch.
