@@ -132,15 +132,10 @@ Generated outputs:
 
 ### Visual Results
 
-![3D trajectory](results/plots/3d_trajectory.png)
+[![3D trajectory (click to play video)](results/plots/3d_trajectory.png)](results/videos/franka_tracking.mp4)
 ![XYZ tracking](results/plots/xyz_tracking.png)
 ![Tracking error](results/plots/tracking_error.png)
 ![Action smoothness](results/plots/action_smoothness.png)
-
-<video controls width="640">
-  <source src="results/videos/franka_tracking.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
 
 ## Design Notes
 
