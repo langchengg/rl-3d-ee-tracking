@@ -122,3 +122,28 @@ def test_env_reset_step_contract_and_uncertainty_delay():
     assert np.allclose(info["applied_residual_action"], np.zeros(7))
 
     env.close()
+
+
+def test_env_filters_delayed_residual_action_and_reports_lookahead_target():
+    cfg = load_config("configs/default.yaml")
+    cfg["env"]["episode_length"] = 5
+    cfg["env"]["frame_skip"] = 1
+    cfg["control"]["residual_filter_beta"] = 0.5
+    cfg["control"]["target_lookahead"] = 0.04
+    cfg["uncertainty"]["observation_noise_std"] = 0.0
+    cfg["uncertainty"]["action_noise_std"] = 0.0
+    cfg["uncertainty"]["action_delay_steps"] = 0
+    cfg["uncertainty"]["unreachable_target_prob"] = 0.0
+
+    env = FrankaTrackingEnv(cfg)
+    obs, info = env.reset(seed=123)
+    action = np.ones(7, dtype=np.float32)
+    next_obs, reward, terminated, truncated, info = env.step(action)
+
+    assert np.allclose(info["applied_residual_action"], 0.5 * np.ones(7))
+    assert np.allclose(
+        info["ik_target_pos"],
+        info["target_pos"] + cfg["control"]["target_lookahead"] * info["target_vel"],
+    )
+
+    env.close()

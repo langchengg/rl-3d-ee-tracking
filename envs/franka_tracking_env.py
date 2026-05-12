@@ -41,6 +41,8 @@ class FrankaTrackingEnv(gym.Env):
 
         control_cfg = config["control"]
         self.residual_scale = float(control_cfg.get("residual_scale", 0.15))
+        self.residual_filter_beta = float(control_cfg.get("residual_filter_beta", 0.0))
+        self.target_lookahead = float(control_cfg.get("target_lookahead", 0.0))
         self.max_joint_velocity = float(control_cfg.get("max_joint_velocity", 1.0))
         self.home_qpos = np.asarray(control_cfg.get("home_qpos", np.zeros(7)), dtype=np.float64)
         if self.home_qpos.shape != (7,):
@@ -76,7 +78,9 @@ class FrankaTrackingEnv(gym.Env):
         self.current_phase = 0.0
         self.prev_action = np.zeros(7, dtype=np.float64)
         self.prev_prev_action = np.zeros(7, dtype=np.float64)
+        self.filtered_residual = np.zeros(7, dtype=np.float64)
         self.last_dq_cmd = np.zeros(7, dtype=np.float64)
+        self.last_ik_target_pos = np.zeros(3, dtype=np.float64)
 
     def reset(self, seed: int | None = None, options: dict[str, Any] | None = None):
         super().reset(seed=seed)
@@ -94,7 +98,9 @@ class FrankaTrackingEnv(gym.Env):
         self.delay_buffer.reset()
         self.prev_action.fill(0.0)
         self.prev_prev_action.fill(0.0)
+        self.filtered_residual.fill(0.0)
         self.last_dq_cmd.fill(0.0)
+        self.last_ik_target_pos.fill(0.0)
         self._update_target(self.sim_time)
         obs = self._get_obs()
         return obs, self._info()
@@ -104,8 +110,15 @@ class FrankaTrackingEnv(gym.Env):
         delayed_residual = self.delay_buffer.push(raw_action)
         self._update_target(self.sim_time + self.control_dt)
 
-        dq_ik = self.ik.compute(self.data, self.current_target_pos, self.current_target_vel)
-        residual_dq = self.residual_scale * self.max_joint_velocity * delayed_residual
+        self.filtered_residual = (
+            self.residual_filter_beta * self.filtered_residual
+            + (1.0 - self.residual_filter_beta) * delayed_residual
+        )
+        ik_target_pos = self.current_target_pos + self.target_lookahead * self.current_target_vel
+        self.last_ik_target_pos = ik_target_pos.copy()
+
+        dq_ik = self.ik.compute(self.data, ik_target_pos, self.current_target_vel)
+        residual_dq = self.residual_scale * self.max_joint_velocity * self.filtered_residual
         dq_cmd = dq_ik + residual_dq
         if self.action_noise_std > 0.0:
             dq_cmd = dq_cmd + self.rng.normal(0.0, self.action_noise_std, size=7)
@@ -144,8 +157,10 @@ class FrankaTrackingEnv(gym.Env):
             {
                 "reward": reward,
                 "dq_ik": dq_ik.copy(),
-                "applied_residual_action": delayed_residual.copy(),
+                "delayed_residual_action": delayed_residual.copy(),
+                "applied_residual_action": self.filtered_residual.copy(),
                 "dq_cmd": dq_cmd.copy(),
+                "ik_target_pos": ik_target_pos.copy(),
             }
         )
         return obs, float(reward), terminated, truncated, info
@@ -211,6 +226,7 @@ class FrankaTrackingEnv(gym.Env):
             "ee_vel": ee_vel,
             "target_pos": self.current_target_pos.copy(),
             "target_vel": self.current_target_vel.copy(),
+            "ik_target_pos": self.last_ik_target_pos.copy(),
             "tracking_error": float(np.linalg.norm(ee_pos - self.current_target_pos)),
             "last_dq_cmd": self.last_dq_cmd.copy(),
         }

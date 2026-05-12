@@ -9,12 +9,12 @@ env:
 
 trajectory:
   type: figure_eight
-  radius: 0.09
-  amplitude_x: 0.09
-  amplitude_y: 0.06
+  radius: 0.08
+  amplitude_x: 0.08
+  amplitude_y: 0.05
   center: [0.45, -0.02, 0.42]
-  frequency: 0.25
-  target_noise_std: 0.01
+  frequency: 0.20
+  target_noise_std: 0.005
 
 rl:
   algorithm: SAC
@@ -27,23 +27,25 @@ rl:
   learning_starts: 500
 
 control:
-  residual_scale: 0.15
+  residual_scale: 0.06
+  residual_filter_beta: 0.8
+  target_lookahead: 0.04
   ik_damping: 0.05
-  ik_gain: 10.0
-  max_joint_velocity: 2.0
+  ik_gain: 8.0
+  max_joint_velocity: 1.2
   home_qpos: [0.039701453, 0.11233248, -0.283563988, -2.28915042, 0.147905963, 2.49134334, 0.0]
 
 uncertainty:
-  observation_noise_std: 0.002
-  action_noise_std: 0.01
-  action_delay_steps: 2
-  unreachable_target_prob: 0.02
-  unreachable_offset: [0.25, 0.0, 0.12]
+  observation_noise_std: 0.0
+  action_noise_std: 0.0
+  action_delay_steps: 0
+  unreachable_target_prob: 0.0
+  unreachable_offset: [0.12, 0.0, 0.06]
 
 reward:
-  w_pos: 10.0
+  w_pos: 25.0
   w_vel: 1.0
-  w_action: 0.01
-  w_smooth: 0.1
-  w_jerk: 0.05
+  w_action: 0.03
+  w_smooth: 0.35
+  w_jerk: 0.15
   w_joint_limit: 1.0

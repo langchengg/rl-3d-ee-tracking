@@ -1,0 +1,7 @@
+base: default.yaml
+
+uncertainty:
+  observation_noise_std: 0.002
+  action_noise_std: 0.003
+  action_delay_steps: 0
+  unreachable_target_prob: 0.0
