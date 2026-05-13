@@ -2,7 +2,9 @@
 
 ## Motion Demo
 
-<video src="results/videos/franka_tracking.mp4" controls muted loop playsinline width="100%"></video>
+![Franka end-effector tracking demo](results/videos/franka_tracking.gif)
+
+[MP4 video](results/videos/franka_tracking.mp4)
 
 This project trains and evaluates a Franka Panda-style 7-DoF arm in MuJoCo for continuous 3D end-effector trajectory tracking.
 
