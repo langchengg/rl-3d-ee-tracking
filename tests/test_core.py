@@ -96,7 +96,7 @@ def test_tracking_metrics_report_rmse_max_error_and_smoothness():
     assert metrics["jerk"] > 0.0
 
 
-def test_env_reset_step_contract_and_uncertainty_delay():
+def test_env_reset_step_contract_and_command_delay():
     cfg = load_config("configs/default.yaml")
     cfg["env"]["episode_length"] = 5
     cfg["env"]["frame_skip"] = 1
@@ -119,12 +119,15 @@ def test_env_reset_step_contract_and_uncertainty_delay():
     assert terminated is False
     assert truncated is False
     assert info["applied_residual_action"].shape == (7,)
-    assert np.allclose(info["applied_residual_action"], np.zeros(7))
+    assert info["nominal_dq_cmd"].shape == (7,)
+    assert info["dq_cmd"].shape == (7,)
+    assert not np.allclose(info["nominal_dq_cmd"], np.zeros(7))
+    assert np.allclose(info["dq_cmd"], np.zeros(7))
 
     env.close()
 
 
-def test_env_filters_delayed_residual_action_and_reports_lookahead_target():
+def test_env_filters_residual_action_and_reports_lookahead_target():
     cfg = load_config("configs/default.yaml")
     cfg["env"]["episode_length"] = 5
     cfg["env"]["frame_skip"] = 1

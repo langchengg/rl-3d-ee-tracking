@@ -64,7 +64,7 @@ class FrankaTrackingEnv(gym.Env):
             uncertainty_cfg.get("unreachable_offset", [0.25, 0.0, 0.12]),
             dtype=np.float64,
         )
-        self.delay_buffer = ActionDelayBuffer(int(uncertainty_cfg.get("action_delay_steps", 0)), 7)
+        self.command_delay_buffer = ActionDelayBuffer(int(uncertainty_cfg.get("action_delay_steps", 0)), 7)
 
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(7,), dtype=np.float32)
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(38,), dtype=np.float32)
@@ -95,7 +95,7 @@ class FrankaTrackingEnv(gym.Env):
 
         self.step_count = 0
         self.sim_time = 0.0
-        self.delay_buffer.reset()
+        self.command_delay_buffer.reset()
         self.prev_action.fill(0.0)
         self.prev_prev_action.fill(0.0)
         self.filtered_residual.fill(0.0)
@@ -107,22 +107,22 @@ class FrankaTrackingEnv(gym.Env):
 
     def step(self, action: np.ndarray):
         raw_action = np.clip(np.asarray(action, dtype=np.float64), -1.0, 1.0)
-        delayed_residual = self.delay_buffer.push(raw_action)
         self._update_target(self.sim_time + self.control_dt)
 
         self.filtered_residual = (
             self.residual_filter_beta * self.filtered_residual
-            + (1.0 - self.residual_filter_beta) * delayed_residual
+            + (1.0 - self.residual_filter_beta) * raw_action
         )
         ik_target_pos = self.current_target_pos + self.target_lookahead * self.current_target_vel
         self.last_ik_target_pos = ik_target_pos.copy()
 
         dq_ik = self.ik.compute(self.data, ik_target_pos, self.current_target_vel)
         residual_dq = self.residual_scale * self.max_joint_velocity * self.filtered_residual
-        dq_cmd = dq_ik + residual_dq
+        nominal_dq_cmd = dq_ik + residual_dq
         if self.action_noise_std > 0.0:
-            dq_cmd = dq_cmd + self.rng.normal(0.0, self.action_noise_std, size=7)
-        dq_cmd = np.clip(dq_cmd, -self.max_joint_velocity, self.max_joint_velocity)
+            nominal_dq_cmd = nominal_dq_cmd + self.rng.normal(0.0, self.action_noise_std, size=7)
+        nominal_dq_cmd = np.clip(nominal_dq_cmd, -self.max_joint_velocity, self.max_joint_velocity)
+        dq_cmd = self.command_delay_buffer.push(nominal_dq_cmd)
 
         q = self._joint_pos()
         q_target = velocity_to_position_target(q, dq_cmd, self.control_dt, self.joint_ranges)
@@ -157,8 +157,9 @@ class FrankaTrackingEnv(gym.Env):
             {
                 "reward": reward,
                 "dq_ik": dq_ik.copy(),
-                "delayed_residual_action": delayed_residual.copy(),
+                "raw_residual_action": raw_action.copy(),
                 "applied_residual_action": self.filtered_residual.copy(),
+                "nominal_dq_cmd": nominal_dq_cmd.copy(),
                 "dq_cmd": dq_cmd.copy(),
                 "ik_target_pos": ik_target_pos.copy(),
             }

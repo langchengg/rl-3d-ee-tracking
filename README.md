@@ -21,6 +21,8 @@ dq_final = dq_DLS_IK + alpha * filtered(dq_RL)
 
 A damped least-squares IK controller handles nominal geometric tracking. SAC from Stable-Baselines3 learns a small residual correction on top of that command. The residual action is bounded and low-pass filtered before it is added to the IK command, which reduces high-frequency jitter.
 
+For fairness in robustness evaluation, action noise and command delay are applied to the final joint-velocity command, not only to the learned residual. This means the IK baseline and residual policy experience the same execution-layer perturbations.
+
 ## Features
 
 - MuJoCo Franka Panda-style 7-DoF arm model
@@ -142,13 +144,13 @@ The noisy target mode adds Gaussian perturbations to the clean figure-eight targ
 
 The main evaluation separates perturbations instead of stacking every uncertainty source at once:
 
-- IK baseline on clean trajectory
-- Residual SAC on clean trajectory
-- Residual SAC with observation/action noise only
-- Residual SAC with one-step action delay only
-- Residual SAC with mild combined noise + delay
+- Clean figure-eight tracking
+- Action noise applied to the final command
+- One-step command delay applied to the final command
+- Trajectory mismatch using a slightly larger and faster figure-eight
+- Mild combined action noise + command delay
 
-Unreachable targets are kept as a separate stress test rather than a main robustness metric.
+Each setting is evaluated with both the IK baseline and the trained Residual SAC policy. Observation noise and unreachable targets are kept as separate stress tests rather than main claims, because observation noise affects the learned policy input but not the analytic IK baseline in the same way.
 
 ## Results
 
@@ -158,11 +160,16 @@ Results below are from `scripts/run_ablation.py` using the trained SAC residual 
 |---|---|---:|---:|---:|---:|---:|
 | Clean | IK | 0.0076 | 0.0073 | 0.0135 | 0.0007 | 0.0000 |
 | Clean | Residual SAC | 0.0098 | 0.0095 | 0.0135 | 0.0007 | 0.0000 |
-| Noise only | Residual SAC | 0.0098 | 0.0095 | 0.0135 | 0.0008 | 0.0003 |
-| Delay only | Residual SAC | 0.0098 | 0.0095 | 0.0135 | 0.0007 | 0.0000 |
-| Mild noise + delay | Residual SAC | 0.0098 | 0.0095 | 0.0135 | 0.0008 | 0.0003 |
+| Action noise | IK | 0.0076 | 0.0073 | 0.0135 | 0.0008 | 0.0004 |
+| Action noise | Residual SAC | 0.0098 | 0.0095 | 0.0135 | 0.0008 | 0.0004 |
+| Command delay | IK | 0.0078 | 0.0074 | 0.0148 | 0.0178 | 0.0164 |
+| Command delay | Residual SAC | 0.0100 | 0.0097 | 0.0148 | 0.0174 | 0.0163 |
+| Trajectory mismatch | IK | 0.0131 | 0.0124 | 0.0193 | 0.0021 | 0.0000 |
+| Trajectory mismatch | Residual SAC | 0.0156 | 0.0149 | 0.0231 | 0.0020 | 0.0000 |
+| Mild combined | IK | 0.0078 | 0.0074 | 0.0148 | 0.0179 | 0.0167 |
+| Mild combined | Residual SAC | 0.0100 | 0.0097 | 0.0148 | 0.0175 | 0.0167 |
 
-The tuned trajectory and lookahead controller keep the end-effector within about 1.35 cm of the moving target on the clean figure-eight. The retrained residual policy remains smooth and robust under the separated noise/delay ablations, while the IK baseline is still slightly stronger on clean RMSE in this simplified geometric tracking setup.
+The fair paired ablation shows that the IK baseline remains slightly stronger on RMSE for this simplified low-speed geometric tracking task. The Residual SAC policy achieves comparable centimeter-level tracking while keeping similar smoothness, with slightly lower smoothness cost than IK in the command-delay and mild-combined settings.
 
 Generated outputs:
 

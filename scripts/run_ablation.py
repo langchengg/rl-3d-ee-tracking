@@ -13,9 +13,14 @@ from utils.logger import ensure_dir
 ABLATION_CASES = [
     ("Clean", "IK", "configs/clean.yaml", "ik"),
     ("Clean", "Residual SAC", "configs/clean.yaml", "policy"),
-    ("Noise only", "Residual SAC", "configs/noise.yaml", "policy"),
-    ("Delay only", "Residual SAC", "configs/delay.yaml", "policy"),
-    ("Mild noise + delay", "Residual SAC", "configs/robust.yaml", "policy"),
+    ("Action noise", "IK", "configs/noise.yaml", "ik"),
+    ("Action noise", "Residual SAC", "configs/noise.yaml", "policy"),
+    ("Command delay", "IK", "configs/delay.yaml", "ik"),
+    ("Command delay", "Residual SAC", "configs/delay.yaml", "policy"),
+    ("Trajectory mismatch", "IK", "configs/mismatch.yaml", "ik"),
+    ("Trajectory mismatch", "Residual SAC", "configs/mismatch.yaml", "policy"),
+    ("Mild combined", "IK", "configs/robust.yaml", "ik"),
+    ("Mild combined", "Residual SAC", "configs/robust.yaml", "policy"),
 ]
 
 

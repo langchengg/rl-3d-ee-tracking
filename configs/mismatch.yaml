@@ -1,7 +1,13 @@
 base: default.yaml
 
+trajectory:
+  radius: 0.07
+  amplitude_x: 0.07
+  amplitude_y: 0.045
+  frequency: 0.14
+
 uncertainty:
   observation_noise_std: 0.0
-  action_noise_std: 0.003
+  action_noise_std: 0.0
   action_delay_steps: 0
   unreachable_target_prob: 0.0
