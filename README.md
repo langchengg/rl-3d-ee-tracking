@@ -1,5 +1,11 @@
 # 3D End-Effector Tracking with Residual Reinforcement Learning
 
+## Motion Demo
+
+[![Franka end-effector tracking demo](results/plots/3d_trajectory.png)](results/videos/franka_tracking.mp4)
+
+[Open the motion video](results/videos/franka_tracking.mp4)
+
 This project trains and evaluates a Franka Panda-style 7-DoF arm in MuJoCo for continuous 3D end-effector trajectory tracking.
 
 ## What This Submission Focuses On
